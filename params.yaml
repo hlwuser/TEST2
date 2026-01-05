@@ -1,0 +1,16 @@
+data:
+  raw_path: data/raw/data.csv
+  processed_path: data/processed/processed_data.csv
+  test_size: 0.2
+  random_state: 42
+
+model:
+  n_estimators: 100
+  max_depth: 10
+  min_samples_split: 2
+  min_samples_leaf: 1
+  random_state: 42
+
+mlflow:
+  experiment_name: loan_status_prediction
+  tracking_uri: https://dagshub.com/YOUR_USERNAME/YOUR_REPO.mlflow
