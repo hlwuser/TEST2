@@ -20,8 +20,8 @@ def load_params():
 def train_model(data_path, model_path, params):
     """Train the Random Forest model"""
     
-    # Initialize DagsHub integration (optional)
-    # dagshub.init(repo_owner='YOUR_USERNAME', repo_name='YOUR_REPO', mlflow=True)
+    
+    dagshub.init(repo_owner='hlwuser', repo_name='TEST2', mlflow=True)
     
     # Load processed data
     df = pd.read_csv(data_path)
