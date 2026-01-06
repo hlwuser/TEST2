@@ -20,13 +20,12 @@ def load_params():
 def train_model(data_path, model_path, params):
     """Train the Random Forest model"""
     
-    # Set up DagsHub credentials from environment variables
+    # Authenticate with DagsHub
     dagshub_token = os.environ.get("DAGSHUB_TOKEN")
-    dagshub_username = os.environ.get("DAGSHUB_USERNAME")
     
-    if dagshub_token and dagshub_username:
-        os.environ["MLFLOW_TRACKING_USERNAME"] = dagshub_username
-        os.environ["MLFLOW_TRACKING_PASSWORD"] = dagshub_token
+    if dagshub_token:
+        dagshub.auth.add_app_token(token=dagshub_token)
+        print("DagsHub authenticated successfully")
     
     # Initialize DagsHub
     dagshub.init(repo_owner='hlwuser', repo_name='TEST2', mlflow=True)
