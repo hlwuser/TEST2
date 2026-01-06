@@ -1,0 +1,48 @@
+{
+    "classification_report": {
+        "0": {
+            "precision": 1.0,
+            "recall": 0.8888888888888888,
+            "f1-score": 0.9411764705882353,
+            "support": 9.0
+        },
+        "1": {
+            "precision": 0.8,
+            "recall": 1.0,
+            "f1-score": 0.8888888888888888,
+            "support": 4.0
+        },
+        "accuracy": 0.9230769230769231,
+        "macro avg": {
+            "precision": 0.9,
+            "recall": 0.9444444444444444,
+            "f1-score": 0.9150326797385621,
+            "support": 13.0
+        },
+        "weighted avg": {
+            "precision": 0.9384615384615385,
+            "recall": 0.9230769230769231,
+            "f1-score": 0.9250879839115134,
+            "support": 13.0
+        }
+    },
+    "confusion_matrix": [
+        [
+            8,
+            1
+        ],
+        [
+            0,
+            4
+        ]
+    ],
+    "feature_importance": {
+        "age": 0.13524086412142855,
+        "gender": 0.004829730031970928,
+        "occupation": 0.04504895740194529,
+        "education_level": 0.012594355785279832,
+        "marital_status": 0.0993827235264702,
+        "income": 0.3076745533422944,
+        "credit_score": 0.39522881579061087
+    }
+}

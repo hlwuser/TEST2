@@ -2,26 +2,24 @@ FROM python:3.10-slim
 
 WORKDIR /app
 
-# Install system dependencies
-RUN apt-get update && apt-get install -y \
-    git \
-    && rm -rf /var/lib/apt/lists/*
+# Copy only requirements first (for better caching)
+COPY requirement.txt .
 
-# Copy requirements
-COPY requirements.txt .
+# Install only production dependencies
+RUN pip install --no-cache-dir \
+    flask \
+    joblib \
+    pandas \
+    numpy \
+    scikit-learn
 
-# Install Python dependencies
-RUN pip install --no-cache-dir -r requirements.txt
-
-# Copy project files
-COPY . .
-
-# Create necessary directories
-RUN mkdir -p model data/raw data/processed
+# Copy only necessary files for the app
+COPY app.py .
+COPY templates/ templates/
+COPY model/model.pkl model/
 
 # Expose port
 EXPOSE 5000
 
 # Run the application
 CMD ["python", "app.py"]
-
