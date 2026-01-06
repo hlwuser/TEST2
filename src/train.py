@@ -9,7 +9,6 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
 import mlflow
 import mlflow.sklearn
-import dagshub
 
 def load_params():
     """Load parameters from params.yaml"""
@@ -20,15 +19,18 @@ def load_params():
 def train_model(data_path, model_path, params):
     """Train the Random Forest model"""
     
-    # Authenticate with DagsHub
+    # Get credentials from environment
     dagshub_token = os.environ.get("DAGSHUB_TOKEN")
+    dagshub_username = os.environ.get("DAGSHUB_USERNAME")
     
-    if dagshub_token:
-        dagshub.auth.add_app_token(token=dagshub_token)
-        print("DagsHub authenticated successfully")
-    
-    # Initialize DagsHub
-    dagshub.init(repo_owner='hlwuser', repo_name='TEST2', mlflow=True)
+    # Set MLflow tracking URI with embedded credentials
+    if dagshub_token and dagshub_username:
+        # Embed credentials directly in the URI
+        mlflow_tracking_uri = f"https://{dagshub_username}:{dagshub_token}@dagshub.com/hlwuser/TEST2.mlflow"
+        mlflow.set_tracking_uri(mlflow_tracking_uri)
+        print("✓ MLflow tracking URI configured with authentication")
+    else:
+        raise ValueError("DAGSHUB_TOKEN and DAGSHUB_USERNAME environment variables must be set")
     
     # Load processed data
     df = pd.read_csv(data_path)
@@ -44,10 +46,13 @@ def train_model(data_path, model_path, params):
         random_state=params['data']['random_state']
     )
     
-    # Initialize MLflow
+    # Set experiment
     mlflow.set_experiment(params['mlflow']['experiment_name'])
+    print(f"✓ MLflow experiment set: {params['mlflow']['experiment_name']}")
     
     with mlflow.start_run():
+        print("✓ MLflow run started")
+        
         # Train model
         model = RandomForestClassifier(
             n_estimators=params['model']['n_estimators'],
@@ -58,6 +63,7 @@ def train_model(data_path, model_path, params):
         )
         
         model.fit(X_train, y_train)
+        print("✓ Model training completed")
         
         # Make predictions
         y_pred = model.predict(X_test)
@@ -70,37 +76,45 @@ def train_model(data_path, model_path, params):
         
         # Log parameters
         mlflow.log_params(params['model'])
+        print("✓ Parameters logged to MLflow")
         
         # Log metrics
         mlflow.log_metric("accuracy", accuracy)
         mlflow.log_metric("precision", precision)
         mlflow.log_metric("recall", recall)
         mlflow.log_metric("f1_score", f1)
+        print("✓ Metrics logged to MLflow")
         
         # Log model
         mlflow.sklearn.log_model(model, "model")
+        print("✓ Model logged to MLflow")
         
         # Save model locally
         os.makedirs(os.path.dirname(model_path), exist_ok=True)
         joblib.dump(model, model_path)
+        print(f"✓ Model saved locally to {model_path}")
         
         # Save metrics to JSON
         metrics = {
-            "accuracy": accuracy,
-            "precision": precision,
-            "recall": recall,
-            "f1_score": f1
+            "accuracy": float(accuracy),
+            "precision": float(precision),
+            "recall": float(recall),
+            "f1_score": float(f1)
         }
         
         metrics_path = os.path.join(os.path.dirname(model_path), 'metrics.json')
         with open(metrics_path, 'w') as f:
             json.dump(metrics, f, indent=4)
+        print(f"✓ Metrics saved to {metrics_path}")
         
-        print(f"Model trained successfully!")
-        print(f"Accuracy: {accuracy:.4f}")
+        print(f"\n{'='*50}")
+        print(f"Model Training Complete!")
+        print(f"{'='*50}")
+        print(f"Accuracy:  {accuracy:.4f}")
         print(f"Precision: {precision:.4f}")
-        print(f"Recall: {recall:.4f}")
-        print(f"F1 Score: {f1:.4f}")
+        print(f"Recall:    {recall:.4f}")
+        print(f"F1 Score:  {f1:.4f}")
+        print(f"{'='*50}\n")
     
     return model, metrics
 
